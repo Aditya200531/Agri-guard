@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="results-container">
+        <div class="top-bar">
+            <div class="image-preview">
+                <!-- Display the uploaded image -->
+                <img src="{{ url_for('static', filename='uploads/' + uploaded_image) }}" alt="Uploaded Image">
+            </div>
+            <div class="disease-info">
+                <h2>Identified Disease: <span>{{ model_output }}</span></h2>
+            </div>
+        </div>
+        <div class="chatbox">
+            <form method="post">
+                <input type="text" name="user_input" placeholder="Ask your question here..." required>
+                <button type="submit">Send</button>
+            </form>
+            <div class="chat-history">
+                {% for message in chat_history %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
