@@ -50,41 +50,54 @@ train_ds = train_ds.map(
     lambda x, y: (data_augmentation(x, training=True), y)
 )
 
-# Model definition with optimizations
+# Model definition
 input_shape = (IMAGE_SIZE, IMAGE_SIZE, CHANNELS)
 
 model = models.Sequential([
     resize_and_rescale,
-    
-    # Optimized Conv blocks with separable convolutions
+
+    # 1st Conv block
     layers.SeparableConv2D(32, (3, 3), activation='relu', input_shape=input_shape, 
                            kernel_regularizer=regularizers.l2(0.01)),
     layers.BatchNormalization(),
     layers.MaxPooling2D((2, 2)),
     layers.Dropout(0.3),
 
+    # 2nd Conv block
     layers.SeparableConv2D(64, (3, 3), activation='relu', kernel_regularizer=regularizers.l2(0.01)),
     layers.BatchNormalization(),
     layers.MaxPooling2D((2, 2)),
     layers.Dropout(0.3),
 
+    # 3rd Conv block
     layers.SeparableConv2D(128, (3, 3), activation='relu', kernel_regularizer=regularizers.l2(0.01)),
     layers.BatchNormalization(),
     layers.MaxPooling2D((2, 2)),
     layers.Dropout(0.4),
 
+    # 4th Conv block
+    layers.SeparableConv2D(256, (3, 3), activation='relu', kernel_regularizer=regularizers.l2(0.01)),
+    layers.BatchNormalization(),
+    layers.MaxPooling2D((2, 2)),
+    layers.Dropout(0.4),
+
+    # 5th Conv block
+    layers.SeparableConv2D(512, (3, 3), activation='relu', kernel_regularizer=regularizers.l2(0.01)),
+    layers.BatchNormalization(),
+    layers.MaxPooling2D((2, 2)),
+    layers.Dropout(0.5),
+
+    # Fully connected layers
     layers.Flatten(),
     layers.Dense(64, activation='relu', kernel_regularizer=regularizers.l2(0.01)),
     layers.BatchNormalization(),
     layers.Dropout(0.5),
-    
+
     layers.Dense(NUM_CLASSES, activation='softmax')
 ])
 
 # Build the model explicitly
 model.build(input_shape=(None, IMAGE_SIZE, IMAGE_SIZE, CHANNELS))
-
-# Now you can call model.summary()
 model.summary()
 
 # Compile the model
@@ -102,11 +115,6 @@ history = model.fit(
     verbose=1,
 )
 
-# Save the model as a TFLite model for deployment
-converter = tf.lite.TFLiteConverter.from_keras_model(model)
-tflite_model = converter.convert()
-
-with open('model.tflite', 'wb') as f:
-    f.write(tflite_model)
-
-print("Model saved as TFLite!")
+# Save the model in the SavedModel format
+model.save("saved_model_path", save_format='tf')  # Replace with your desired path
+print("Model saved in SavedModel format!")
