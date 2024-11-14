@@ -1,4 +1,5 @@
 import os
+import json
 from flask import Flask, render_template, request, redirect, url_for, session
 import numpy as np
 import tensorflow as tf
@@ -10,43 +11,27 @@ app.secret_key = 'your_secret_key'
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Load TFLite model
-interpreter = tf.lite.Interpreter(model_path="Agri-guard\model.tflite")
-interpreter.allocate_tensors()
+# Load the model from the .pb file
+model = tf.saved_model.load("Agri-guard\saved_model")
 
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
+# Load class labels from a JSON file
+with open("Agri-guard\class_indices.json", "r") as f:
+    class_labels = json.load(f)
 
-# Class labels in index order
-class_labels = [
-    "Corn (maize) Cercospora leaf spot Gray leaf spot",
-    "Corn (maize) Common rust",
-    "Corn (maize) healthy",
-    "Corn (maize) Northern Leaf Blight",
-    "Pepper, bell Bacterial spot",
-    "Pepper, bell healthy",
-    "Potato Early blight",
-    "Potato healthy",
-    "Potato Late blight",
-    "Tomato Bacterial spot",
-    "Tomato Early blight",
-    "Tomato healthy",
-    "Tomato Late blight",
-    "Tomato Leaf Mold",
-    "Tomato Septoria leaf spot",
-    "Tomato Spider mites Two-spotted spider mite",
-    "Tomato Target Spot",
-    "Tomato Tomato mosaic virus",
-    "Tomato Tomato Yellow Leaf Curl Virus"
-]
+# Convert JSON keys to integers for easier indexing
+class_labels = {int(k): v for k, v in class_labels.items()}
 
 def process_image(image_path):
-    image = Image.open(image_path).resize((input_details[0]['shape'][1], input_details[0]['shape'][2]))
+    image = Image.open(image_path).resize((224, 224))  # Adjust size based on your model's requirements
     input_data = np.expand_dims(np.array(image, dtype=np.float32) / 255.0, axis=0)
-    interpreter.set_tensor(input_details[0]['index'], input_data)
-    interpreter.invoke()
-    output_data = interpreter.get_tensor(output_details[0]['index'])[0]  # Get first row from softmax
-    return output_data
+    input_tensor = tf.convert_to_tensor(input_data)
+
+    # Run inference using the loaded model
+    infer = model.signatures['serving_default']
+    output_data = infer(input_tensor)
+    logits = list(output_data.values())[0].numpy()[0]  # Get the first (and only) batch
+
+    return logits
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -59,8 +44,8 @@ def index():
             session['chat_history'] = []  # Initialize chat history for the session
 
             # Process the image and get the class label
-            model_output = process_image(file_path)
-            predicted_index = np.argmax(model_output)  # Get index of highest softmax value
+            logits = process_image(file_path)
+            predicted_index = np.argmax(logits)  # Get index of highest softmax value
             predicted_label = class_labels[predicted_index]  # Map to class label
             session['model_output'] = predicted_label  # Store class label in session
 

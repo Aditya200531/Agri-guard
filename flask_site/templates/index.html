@@ -3,19 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crop Disease Identifier</title>
+    <title>AgriGuard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Identify Crop Diseases</h1>
-        <p>Upload an image of the affected plant to get started.</p>
-        <form action="/" method="post" enctype="multipart/form-data">
+        <div class="header">
+            <h1>🌱 AgriGuard</h1>
+            <p>Diagnose plant diseases with AI-powered image analysis</p>
+        </div>
+        <form action="/" method="post" enctype="multipart/form-data" class="upload-form">
             <input type="file" name="image" accept="image/*" required>
-            <button type="submit">Analyze Image</button>
+            <button type="submit">🔍 Analyze Image</button>
         </form>
     </div>
+    <script>
+        // Add some animated flourishes
+        anime({
+            targets: '.header h1',
+            translateY: [-20, 0],
+            opacity: [0, 1],
+            duration: 1000,
+            delay: 200,
+            easing: 'easeOutExpo'
+        });
+        anime({
+            targets: '.header p',
+            translateY: [-10, 0],
+            opacity: [0, 1],
+            duration: 800,
+            delay: 400,
+            easing: 'easeOutExpo'
+        });
+        anime({
+            targets: '.upload-form',
+            translateY: [20, 0],
+            opacity: [0, 1],
+            duration: 800,
+            delay: 600,
+            easing: 'easeOutExpo'
+        });
+    </script>
 </body>
 </html>

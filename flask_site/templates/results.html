@@ -7,30 +7,58 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
 </head>
 <body>
     <div class="results-container">
         <div class="top-bar">
+            {% if uploaded_image %}
             <div class="image-preview">
-                {% if uploaded_image %}
-                    <img src="{{ url_for('static', filename='uploads/' + uploaded_image) }}" alt="Uploaded Image">
-                {% endif %}
+                <img src="{{ url_for('static', filename='uploads/' + uploaded_image) }}" alt="Uploaded Image">
             </div>
+            {% endif %}
             <div class="disease-info">
-                <h2>Identified Disease: <span>{{ model_output }}</span></h2>
+                <h2>🔎 <span>{{ model_output }}</span></h2>
             </div>
         </div>
         <div class="chatbox">
-            <form method="post">
-                <input type="text" name="user_input" placeholder="Ask your question here..." required>
-                <button type="submit">Send</button>
+            <form method="post" class="chat-input">
+                <input type="text" name="user_input" placeholder="💬 Ask your question here..." required>
+                <button type="submit">✉️ Send</button>
             </form>
             <div class="chat-history">
                 {% for message in chat_history %}
-                    <p>{{ message }}</p>
+                <p>{{ message }}</p>
                 {% endfor %}
             </div>
         </div>
     </div>
+    <script>
+        // Add some animated flourishes
+        anime({
+            targets: '.top-bar',
+            translateY: [-20, 0],
+            opacity: [0, 1],
+            duration: 800,
+            delay: 200,
+            easing: 'easeOutExpo'
+        });
+        anime({
+            targets: '.chatbox',
+            translateY: [20, 0],
+            opacity: [0, 1],
+            duration: 800,
+            delay: 400,
+            easing: 'easeOutExpo'
+        });
+        anime({
+            targets: '.chat-input',
+            translateY: [10, 0],
+            opacity: [0, 1],
+            duration: 600,
+            delay: 600,
+            easing: 'easeOutExpo'
+        });
+    </script>
 </body>
 </html>
