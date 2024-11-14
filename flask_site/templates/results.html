@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Results</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="results-container">
         <div class="top-bar">
             <div class="image-preview">
-                <!-- Display the uploaded image -->
-                <img src="{{ url_for('static', filename='uploads/' + uploaded_image) }}" alt="Uploaded Image">
+                {% if uploaded_image %}
+                    <img src="{{ url_for('static', filename='uploads/' + uploaded_image) }}" alt="Uploaded Image">
+                {% endif %}
             </div>
             <div class="disease-info">
                 <h2>Identified Disease: <span>{{ model_output }}</span></h2>

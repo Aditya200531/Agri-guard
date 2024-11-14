@@ -17,13 +17,36 @@ interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
+# Class labels in index order
+class_labels = [
+    "Corn (maize) Cercospora leaf spot Gray leaf spot",
+    "Corn (maize) Common rust",
+    "Corn (maize) healthy",
+    "Corn (maize) Northern Leaf Blight",
+    "Pepper, bell Bacterial spot",
+    "Pepper, bell healthy",
+    "Potato Early blight",
+    "Potato healthy",
+    "Potato Late blight",
+    "Tomato Bacterial spot",
+    "Tomato Early blight",
+    "Tomato healthy",
+    "Tomato Late blight",
+    "Tomato Leaf Mold",
+    "Tomato Septoria leaf spot",
+    "Tomato Spider mites Two-spotted spider mite",
+    "Tomato Target Spot",
+    "Tomato Tomato mosaic virus",
+    "Tomato Tomato Yellow Leaf Curl Virus"
+]
+
 def process_image(image_path):
     image = Image.open(image_path).resize((input_details[0]['shape'][1], input_details[0]['shape'][2]))
     input_data = np.expand_dims(np.array(image, dtype=np.float32) / 255.0, axis=0)
     interpreter.set_tensor(input_details[0]['index'], input_data)
     interpreter.invoke()
-    output_data = interpreter.get_tensor(output_details[0]['index'])
-    return output_data  # Return the ndarray as output
+    output_data = interpreter.get_tensor(output_details[0]['index'])[0]  # Get first row from softmax
+    return output_data
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -35,10 +58,11 @@ def index():
             session['uploaded_image'] = file.filename
             session['chat_history'] = []  # Initialize chat history for the session
 
-            # Process the image and store the output as a serializable type
+            # Process the image and get the class label
             model_output = process_image(file_path)
-            model_output_serializable = model_output.tolist()  # Convert to list to ensure JSON serialization
-            session['model_output'] = model_output_serializable  # Store serializable model output
+            predicted_index = np.argmax(model_output)  # Get index of highest softmax value
+            predicted_label = class_labels[predicted_index]  # Map to class label
+            session['model_output'] = predicted_label  # Store class label in session
 
             return redirect(url_for('results'))
     return render_template('index.html')
