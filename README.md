@@ -10,7 +10,7 @@
 
 
 
-**Agri-guard** is a machine-learning-based application designed to support agricultural activities. Leveraging a TensorFlow Lite model, this project provides a web interface for farmers or agricultural experts to assess crop health and analyze agricultural inputs efficiently. Additionally, it includes a chatbot that answers agricultural questions by referencing relevant articles and knowledge sources.
+**Agri-guard** is a machine-learning-based application designed to support agricultural activities. Leveraging a TensorFlow model, this project provides a web interface for farmers or agricultural experts to assess crop health and analyze agricultural inputs efficiently. Additionally, it includes a fine-tuned LLM (LLaMa) chatbot that answers agricultural questions by referencing relevant articles and knowledge sources.
 
 ## Table of Contents
 - [Features](#features)
