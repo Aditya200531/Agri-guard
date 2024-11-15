@@ -8,51 +8,86 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* Loading spinner styles */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .loading-spinner i {
+            font-size: 30px;
+            animation: spin 1.5s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <div class="results-container">
-        <div class="top-bar">
-            <h1 style="color:#38B2AC;">🌱 AgriGuard</h1>
+    <div class="container">
+        <div class="header">
+            <h1 style="font-size: 5rem; color: #38B2AC;">🌱 AgriGuard</h1>
+            <p>Results and analysis of your plant image</p>
+        </div>
+        <div class="results-section">
             <div class="disease-info">
-                <h2>🔎 <span>{{ model_output }}</span></h2>
+                <h2>🔎 Analysis Result: <span style="color: white">{{ model_output }}</span></h2>
+                <p>Enter your questions below to learn more!</p>
+            </div>
+            <div id="chat-history" class="chat-history">
+                {% for message in chat_history %}
+                    <div class="message {{ 'user' if message.startswith('User:') else 'bot' }}">
+                        {% if message.startswith('User:') %}
+                            <p>{{ message }}</p>
+                        {% else %}
+                            <p>{{ message['response']|safe }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Loading spinner -->
+            <div class="loading-spinner" id="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i> Generating response...
             </div>
         </div>
-        <div id="chat-history" class="chat-history">
-            {% for message in chat_history %}
-                <div class="message {{ 'user' if message.startswith('User:') else 'bot' }}">
-                    {% if message.startswith('User:') %}
-                        <p>{{ message }}</p>
-                    {% else %}
-                        <p>{{ message['response'] }}</p>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        </div>
-        
+
         <!-- Chat Form -->
-        <form id="chat-form">
+        <form id="chat-form" class="upload-form">
             <input type="text" id="user-input" class="chat-input" placeholder="Type your message..." required>
-            <button type="submit">Send</button>
+            <button type="submit" class="analyse-btn">Send</button>
         </form>
     </div>
 
     <script>
-        // Add animated flourishes
+        // Apply animations
         anime({
-            targets: '.top-bar',
+            targets: '.header h1',
             translateY: [-20, 0],
             opacity: [0, 1],
-            duration: 800,
+            duration: 1000,
             delay: 200,
             easing: 'easeOutExpo'
         });
 
         anime({
-            targets: '.chatbox',
-            translateY: [20, 0],
+            targets: '.header p',
+            translateY: [-10, 0],
             opacity: [0, 1],
             duration: 800,
             delay: 400,
+            easing: 'easeOutExpo'
+        });
+
+        anime({
+            targets: '.results-section',
+            translateY: [20, 0],
+            opacity: [0, 1],
+            duration: 800,
+            delay: 600,
             easing: 'easeOutExpo'
         });
 
@@ -61,15 +96,18 @@
             translateY: [20, 0],
             opacity: [0, 1],
             duration: 800,
-            delay: 600,
+            delay: 800,
             easing: 'easeOutExpo'
         });
 
-        // Handle form submission and chat interactions
+        // Handle chat form submission
         document.getElementById('chat-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const userInput = document.getElementById('user-input').value;
             document.getElementById('user-input').value = ''; // Clear input field
+
+            // Show loading spinner
+            document.getElementById('loading-spinner').style.display = 'block';
 
             fetch('/chat', {
                 method: 'POST',
@@ -85,30 +123,25 @@
                 // Append user message
                 const userMessage = document.createElement('div');
                 userMessage.classList.add('message', 'user');
-                userMessage.innerHTML = `<p>User: ${data.user}</p>`;
+                userMessage.innerHTML = `<p>User: ${userInput}</p>`;
                 chatHistory.appendChild(userMessage);
 
-                // Append bot response as ordered list without periods after the number
+                // Append structured bot response
                 const botMessage = document.createElement('div');
                 botMessage.classList.add('message', 'bot');
-                const uniqueResponses = new Set(data.bot);
-                let number = 1;
-
-                uniqueResponses.forEach(line => {
-                    const botResponse = document.createElement('p');
-                    botResponse.textContent = `${number} ${line}`; // No period after the number
-                    botResponse.style.marginBottom = "10px"; // Add spacing between lines
-                    botMessage.appendChild(botResponse);
-                    number++; // Increment the number for each line
-                });
-
+                botMessage.innerHTML = `<p>${data.bot}</p>`;
                 chatHistory.appendChild(botMessage);
 
-                // Scroll to the bottom of the chat history
+                // Hide loading spinner after response
+                document.getElementById('loading-spinner').style.display = 'none';
+
                 chatHistory.scrollTop = chatHistory.scrollHeight;
             })
-            .catch(err => console.error('Error:', err));
+            .catch(err => {
+                console.error('Error in chat:', err);
+                document.getElementById('loading-spinner').style.display = 'none';
+            });
         });
-    </script>    
+    </script>
 </body>
 </html>

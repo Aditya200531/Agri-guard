@@ -9,6 +9,48 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* Add some custom styles to make things look good */
+        .upload-box {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-label {
+            display: block;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .file-name {
+            font-size: 18px;
+            color: #333;
+        }
+
+        /* Style for image preview */
+        #image-preview {
+            display: none;
+            width: 200px; /* Set a fixed width */
+            height: 200px; /* Set a fixed height */
+            object-fit: cover; /* Ensures image fills the square and is centered */
+            border-radius: 8px;
+            opacity: 0.7; /* Reduce the opacity */
+            transition: opacity 0.3s ease; /* Smooth transition for opacity */
+        }
+
+        .upload-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -18,18 +60,19 @@
         </div>
         <form action="/" method="post" enctype="multipart/form-data" class="upload-form">
             <label for="file-upload" class="file-label">
-                <span class="upload-icon">
+                <span class="upload-icon" id="upload-icon">
                     <div class="upload-box">
-                        <i class="fa-solid fa-upload"></i>
+                        <i class="fa-solid fa-upload" id="upload-icon-image"></i>
+                        <img id="image-preview" src="#" alt="Image Preview">
                     </div>
-                    <!-- img src="{{ url_for('static', filename='images/upload-icon.svg') }}" alt="Upload Icon"> -->
                 </span>
-                <span class="file-name">Choose Image</span>
-                <input type="file" id="file-upload" name="image" accept="image/*" required>
+                <span class="file-name" id="file-name-text">Choose Image</span>
+                <input type="file" id="file-upload" name="image" accept="image/*" required onchange="previewImage(event)">
             </label>
             <button type="submit" class="analyse-btn">🔍 Analyze Image</button>
         </form>
     </div>
+
     <script>
         // Add some animated flourishes
         anime({
@@ -56,6 +99,27 @@
             delay: 600,
             easing: 'easeOutExpo'
         });
+
+        // Preview the selected image and update the UI
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var preview = document.getElementById('image-preview');
+                var fileNameText = document.getElementById('file-name-text');
+                var uploadIcon = document.getElementById('upload-icon-image');
+
+                // Set image preview source
+                preview.src = reader.result;
+                preview.style.display = 'block'; // Show the image preview
+
+                // Change the file name text
+                fileNameText.textContent = "Replace Image";
+
+                // Hide the upload icon (fa-upload) after image is selected
+                uploadIcon.style.display = 'none';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
     </script>
 </body>
 </html>

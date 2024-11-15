@@ -47,10 +47,9 @@ prompt = ChatPromptTemplate.from_template(
     """
 )
 
-
 def vector_embedding():
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-    loader = PyPDFDirectoryLoader("model_stuff/wiki_articles")
+    loader = PyPDFDirectoryLoader("Agri-guard/wiki_articles")
     docs = loader.load()
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
@@ -118,20 +117,39 @@ def chat():
 
     if user_input:
         response = retrieval_chain.invoke({'input': user_input})
-        bot_response = response['answer']
+        raw_response = response.get('answer', 'No response available')
 
-        # Split response into lines and remove duplicates
-        formatted_response = bot_response.split('\n')
-        unique_lines = set(line.strip() for line in formatted_response if line.strip())  # Remove duplicates and empty lines
-        formatted_response = [f"• {line}" for line in unique_lines]
+        # Structuring the response
+        if isinstance(raw_response, str):
+            # Ensure bullet points are separated properly
+            formatted_response = raw_response.replace('\n', '').replace('* ', '\n').split('\n')
+            formatted_response = [item.strip() for item in formatted_response if item]
 
+            # Create a structured response with numbered points
+            structured_response = """
+            <div>
+                <h2>AgriGuard says:</h2>
+                <br/>
+                <p>The ideal conditions for corn crop to grow are:</p>
+                <ol>
+            """
+            for i, item in enumerate(formatted_response, start=1):
+                structured_response += f"<li>{item}</li>"
+            structured_response += """
+                </ol>
+                <br/>
+                <p><em>Need more details? Feel free to ask more questions!</em></p>
+            </div>
+            """
+
+        # Log and save chat history
         chat_history.append(f"User: {user_input}")
         chat_history.append({'type': 'bot', 'response': formatted_response})
         session['chat_history'] = chat_history
 
-        return jsonify({'user': user_input, 'bot': formatted_response})
+        return jsonify({'user': user_input, 'bot': structured_response})
+    
     return jsonify({'error': 'Invalid input'})
-
 
 
 if __name__ == '__main__':
