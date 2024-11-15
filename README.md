@@ -4,6 +4,9 @@
 ![TensorFlow Lite](https://img.shields.io/badge/TensorFlow%20Lite-2.x-orange)
 ![Flask](https://img.shields.io/badge/Flask-2.x-green)
 
+![WhatsApp Image 2024-11-15 at 19 34 59_559fbf5d](https://github.com/user-attachments/assets/75a38161-28aa-43f5-8582-611a61638dd3)
+
+
 **Agri-guard** is a machine-learning-based application designed to support agricultural activities. Leveraging a TensorFlow Lite model, this project provides a web interface for farmers or agricultural experts to assess crop health and analyze agricultural inputs efficiently. Additionally, it includes a chatbot that answers agricultural questions by referencing relevant articles and knowledge sources.
 
 ## Table of Contents
@@ -72,5 +75,6 @@ The chatbot is integrated into the web app and starts automatically with the Fla
    ```
 2. **Access the Application**
    Open a browser and go to http://127.0.0.1:5000 to start using Agri-guard.
+
    
 
