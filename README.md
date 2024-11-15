@@ -19,7 +19,6 @@
 - **Machine Learning Inference**: Utilizes TensorFlow Lite models for crop health assessment and agricultural input analysis.
 - **Web Interface**: User-friendly interface for interaction and visualization.
 - **Chatbot Support**: Integrates a chatbot for answering agricultural questions.
-- **CNN-based Analysis**: Implements Convolutional Neural Networks (CNN) for accurate crop health predictions.
 
 
 ## Chatbot
