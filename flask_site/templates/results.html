@@ -28,11 +28,14 @@
             </form>
             <div class="chat-history">
                 {% for message in chat_history %}
-                <p>{{ message }}</p>
+                    <div class="message {{ 'user' if loop.index is odd else 'bot' }}">
+                        <p>{{ message }}</p>
+                    </div>
                 {% endfor %}
             </div>
         </div>
     </div>
+
     <script>
         // Add some animated flourishes
         anime({
