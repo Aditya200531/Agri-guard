@@ -12,32 +12,32 @@
 <body>
     <div class="results-container">
         <div class="top-bar">
-            {% if uploaded_image %}
-            <div class="image-preview">
-                <img src="{{ url_for('static', filename='uploads/' + uploaded_image) }}" alt="Uploaded Image">
-            </div>
-            {% endif %}
+            <h1 style="color:#38B2AC;">🌱 AgriGuard</h1>
             <div class="disease-info">
                 <h2>🔎 <span>{{ model_output }}</span></h2>
             </div>
         </div>
-        <div class="chatbox">
-            <form method="post" class="chat-input">
-                <input type="text" name="user_input" placeholder="💬 Ask your question here..." required>
-                <button type="submit">✉️ Send</button>
-            </form>
-            <div class="chat-history">
-                {% for message in chat_history %}
-                    <div class="message {{ 'user' if loop.index is odd else 'bot' }}">
+        <div id="chat-history" class="chat-history">
+            {% for message in chat_history %}
+                <div class="message {{ 'user' if message.startswith('User:') else 'bot' }}">
+                    {% if message.startswith('User:') %}
                         <p>{{ message }}</p>
-                    </div>
-                {% endfor %}
-            </div>
+                    {% else %}
+                        <p>{{ message['response'] }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
+        
+        <!-- Chat Form -->
+        <form id="chat-form">
+            <input type="text" id="user-input" class="chat-input" placeholder="Type your message..." required>
+            <button type="submit">Send</button>
+        </form>
     </div>
 
     <script>
-        // Add some animated flourishes
+        // Add animated flourishes
         anime({
             targets: '.top-bar',
             translateY: [-20, 0],
@@ -46,6 +46,7 @@
             delay: 200,
             easing: 'easeOutExpo'
         });
+
         anime({
             targets: '.chatbox',
             translateY: [20, 0],
@@ -54,14 +55,60 @@
             delay: 400,
             easing: 'easeOutExpo'
         });
+
         anime({
             targets: '.chat-input',
-            translateY: [10, 0],
+            translateY: [20, 0],
             opacity: [0, 1],
-            duration: 600,
+            duration: 800,
             delay: 600,
             easing: 'easeOutExpo'
         });
-    </script>
+
+        // Handle form submission and chat interactions
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const userInput = document.getElementById('user-input').value;
+            document.getElementById('user-input').value = ''; // Clear input field
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_input: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const chatHistory = document.getElementById('chat-history');
+
+                // Append user message
+                const userMessage = document.createElement('div');
+                userMessage.classList.add('message', 'user');
+                userMessage.innerHTML = `<p>User: ${data.user}</p>`;
+                chatHistory.appendChild(userMessage);
+
+                // Append bot response as ordered list without periods after the number
+                const botMessage = document.createElement('div');
+                botMessage.classList.add('message', 'bot');
+                const uniqueResponses = new Set(data.bot);
+                let number = 1;
+
+                uniqueResponses.forEach(line => {
+                    const botResponse = document.createElement('p');
+                    botResponse.textContent = `${number} ${line}`; // No period after the number
+                    botResponse.style.marginBottom = "10px"; // Add spacing between lines
+                    botMessage.appendChild(botResponse);
+                    number++; // Increment the number for each line
+                });
+
+                chatHistory.appendChild(botMessage);
+
+                // Scroll to the bottom of the chat history
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            })
+            .catch(err => console.error('Error:', err));
+        });
+    </script>    
 </body>
 </html>
