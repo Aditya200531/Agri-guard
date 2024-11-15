@@ -1,3 +1,14 @@
 Flask==2.1.2
 Pillow==9.0.1
 numpy==1.23.3
+faiss-cpu
+groq
+langchain-groq
+PyPDF2
+langchain_google_genai
+langchain
+streamlit
+langchain_community
+python-dotenv
+pypdf
+google-cloud-aiplatform>=1.38
