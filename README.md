@@ -44,7 +44,7 @@ The chatbot is integrated into the web app and starts automatically with the Fla
 ## Project Structure
 
 - `app.py`: Main application file to run the web server and handle inference.
-- `model.tflite` and `2.tflite`: Pre-trained TensorFlow Lite models for prediction.
+- `model.tflite` and `model.tflite`: Pre-trained TensorFlow Lite models for prediction.
 - `class_indices.json`: Mapping of class indices to class names for interpreting results.
 - `templates/`: Contains HTML templates for the web interface.
   - `index.html`: Main page for uploading images.
